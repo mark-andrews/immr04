@@ -34,3 +34,39 @@ M_3 <- glmer(cbind(m, n-m) ~ 1 + (1|batch),
 summary(M_3)
 fixef(M_3) + c(-1, 1) * 1.96 * 0.66
 plogis(fixef(M_3) + c(-1, 1) * 1.96 * 0.66)
+
+# random effect, or random differences, from the average log odds
+ranef(M_3)
+
+coef(M_3)
+
+# normal random effects model ---------------------------------------------
+
+alcohol_df <- read_csv("https://raw.githubusercontent.com/mark-andrews/immr04/master/data/alcohol.csv")
+
+M_4 <- lmer(alcohol ~ 1 + (1|country), data = alcohol_df)
+summary(M_4)
+# ranef gives the "zeta" values
+ranef(M_4)
+
+# the mu's themselves are from phi + zeta or coef(M_4)
+# and phi is from fixef(M_4)
+fixef(M_4)
+coef(M_4)
+
+# Intraclass correlation
+vars <- (VarCorr(M_4) %>% as.data.frame())[,'vcov']
+vars[1]/sum(vars)
+
+# Linear mixed effects models ---------------------------------------------
+
+head(sleepstudy)
+ggplot(sleepstudy, 
+       aes(x = Days, y = Reaction)
+) + geom_point() + facet_wrap(~Subject)
+
+ggplot(sleepstudy, 
+       aes(x = Days, y = Reaction)
+) + geom_point() + 
+  facet_wrap(~Subject) + 
+  stat_smooth(method = 'lm', se = F)
