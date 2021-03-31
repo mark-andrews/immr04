@@ -70,3 +70,41 @@ ggplot(sleepstudy,
 ) + geom_point() + 
   facet_wrap(~Subject) + 
   stat_smooth(method = 'lm', se = F)
+
+sleepstudy_334 <- filter(sleepstudy, Subject == 334)
+M_5 <- lm(Reaction ~ Days, data = sleepstudy_334)
+coef(M_5) # the beta coefficients
+sigma(M_5) # for sigma
+
+M_5a <- lm(Reaction ~ 1 + Days, data = sleepstudy_334)
+
+# non-multilevel model but of all subjects in the data
+M_6 <- lm(Reaction ~ 0 + Subject  + Subject:Days, data = sleepstudy)
+summary(M_6)
+sigma(M_6)
+
+
+
+# multilevel linear model aka linear mixed effects  -----------------------
+# lm(Reaction ~ 1 + Days, data = sleepstudy)
+
+M_7 <- lmer(Reaction ~ 1 + Days + (1 + Days|Subject), data = sleepstudy)
+ranef(M_7) # these are zeta
+coef(M_7)  # these are beta
+
+# This is identical to M_7
+M_8 <- lmer(Reaction ~ Days + (Days|Subject), data = sleepstudy)
+
+# Random intercepts only
+# So all slopes assumed to be identical across subjects
+M_9 <- lmer(Reaction ~ 1 + Days + (1|Subject), data = sleepstudy)
+summary(M_9)
+
+# Random slopes only
+M_10 <- lmer(Reaction ~ 1 + Days + (0 + Days|Subject), data = sleepstudy)
+summary(M_10)
+
+# Random slopes and random intercepts but no correlation
+M_11 <- lmer(Reaction ~ Days + (Days||Subject), data = sleepstudy)
+
+anova(M_11, M_7)
