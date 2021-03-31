@@ -1,0 +1,36 @@
+library(tidyverse)
+
+# Get rats data -----------------------------------------------------------
+
+rats_df <- read_csv("https://raw.githubusercontent.com/mark-andrews/immr04/master/data/rats.csv")
+rats_df <- mutate(rats_df, batch = factor(batch))
+
+# Look at batch 42 --------------------------------------------------------
+
+rats_df_42 <- filter(rats_df, batch == "42")
+
+M_1 <- glm(cbind(m, n-m) ~ 1, data = rats_df_42, family = binomial)
+# estimated value of beta, i.e. the log odds of a tumour in batch 42
+coef(M_1)
+# estimated value of theta, i.e. the probability of a tumour in batch 42
+plogis(coef(M_1))
+# 95% confidence interval on the probability of a tumour in batch 42
+plogis(confint.default(M_1))
+
+
+# A single model of all batches -------------------------------------------
+
+M_2 <- glm(cbind(m, n - m) ~ 0 + batch, data = rats_df, family = binomial) 
+round(plogis(coef(M_2)), 2)
+
+
+
+# Multilevel version of the multi batch model -----------------------------
+library(lme4)
+M_3 <- glmer(cbind(m, n-m) ~ 1 + (1|batch),
+             data = rats_df,
+             family = binomial)
+
+summary(M_3)
+fixef(M_3) + c(-1, 1) * 1.96 * 0.66
+plogis(fixef(M_3) + c(-1, 1) * 1.96 * 0.66)
