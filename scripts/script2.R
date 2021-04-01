@@ -115,3 +115,32 @@ M_24 <- lmer(mathach ~ ses + himinty + (1 + ses|school),
 M_25 <- lmer(mathach ~ ses + himinty + (1 + ses|school) + (himinty|school), 
              REML = F,
              data = mathach_join_df)
+
+# does not work ...
+# M_26 <- lmer(mathach ~ ses + pracad + (ses|school) + (pracad|school)) 
+             
+
+# Bayesian methods --------------------------------------------------------
+
+library(brms)
+
+M_27 <- lm(Reaction ~ Days, data = sleepstudy)  # linear regression
+M_28 <- brm(Reaction ~ Days, data = sleepstudy) # Bayesian linear regression
+
+summary(M_27)$coefficients
+M_28
+
+# Bayesian mixed effects model
+
+M_29 <- brm(Reaction ~ Days + (Days|Subject), data = sleepstudy)
+M_8 <- lmer(Reaction ~ Days + (Days|Subject), data = sleepstudy)
+
+M_30 <- brm(Reaction ~ Days + (Days|Subject), 
+            data = sleepstudy)
+
+M_31 <- brm(Reaction ~ Days + (Days||Subject), 
+            data = sleepstudy)
+
+waic_30 <- waic(M_30)
+waic_31 <- waic(M_31)
+loo_compare(waic_30, waic_31)
